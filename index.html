@@ -3,37 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Canvas</title>
+  <title>Obsidian Canvas</title>
 
   <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
+    html, body {
       width: 100%;
       height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
+    }
+
+    #canvas {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #error {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      padding: 15px;
+      background: #ffdddd;
+      color: #900;
+      font-family: monospace;
+      z-index: 9999;
+      display: none;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 
 <body>
 
+<div id="canvas"></div>
+<div id="error"></div>
+
 <script type="module">
-  import {
-    JSONCanvasViewer,
-    parser,
-    fetchCanvas
-  } from "https://unpkg.com/json-canvas-viewer";
 
-  const canvas = await fetchCanvas("./canvas.canvas");
+  const errorBox = document.getElementById("error");
 
-  new JSONCanvasViewer({
-    container: document.body,
-    canvas: canvas,
-    parser: parser
-  });
+  try {
+
+    const {
+      JSONCanvasViewer,
+      parser,
+      fetchCanvas,
+      Minimap
+    } = await import(
+      "https://cdn.jsdelivr.net/npm/json-canvas-viewer@4.3.2/dist/chimp.js"
+    );
+
+    const canvasData = await fetchCanvas("./canvas.canvas");
+
+    new JSONCanvasViewer(
+      {
+        container: document.getElementById("canvas"),
+        canvas: canvasData,
+        parser: parser
+      },
+      [Minimap]
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    errorBox.style.display = "block";
+    errorBox.textContent =
+      "Ошибка загрузки Canvas:\n\n" +
+      error.message +
+      "\n\n" +
+      error.stack;
+
+  }
+
 </script>
 
 </body>
